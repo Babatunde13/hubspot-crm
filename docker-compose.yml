@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "4012:4012"
+    depends_on:
+      - db
+    env_file:
+      - docker.env
+      
+    networks:
+      - hubspot-crm-network
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: hubspot-crm
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - hubspot-crm-network
+
+networks:
+  hubspot-crm-network:
+    driver: bridge
