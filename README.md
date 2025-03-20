@@ -286,6 +286,8 @@ The API will return the following common error codes and messages:
 
 Status Code	Error Message	Description
 400	Validation error	Input validation failed, such as missing or invalid fields.
-401	Invalid token	Authentication failed. Invalid or expired JWT token.
+401	Invalid token	Authentication failed. Invalid or expired 
+JWT token.
+429	ratelimit exceeded 1 per 1 minute. Rate limit expired.
 404	Resource not found	The requested resource is not found.
 500	Internal server error	Something went wrong on the server side.
