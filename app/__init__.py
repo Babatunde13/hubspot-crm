@@ -1,19 +1,27 @@
 from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from app.extensions import db, jwt, migrate
 from app.routes.auth import auth_bp
 from app.logger import Logger
 from app.routes.contact import contacts_bp
-from app.config import config
+from app.config import Config
 
 def create_app():
     logger = Logger("App")
     app = Flask(__name__)
 
-    app.config.from_object(config)
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=["1 per minute"]
+    )
+
+    app.config.from_object(Config)
 
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
+    limiter.init_app(app)
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(contacts_bp, url_prefix="/contacts")
@@ -40,5 +48,9 @@ def create_app():
     @jwt.invalid_token_loader
     def invalid_token_response(callback):
         return {"error": "Invalid token"}, 401
+
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        return {"error": "ratelimit exceeded %s" % e.description}, 429
 
     return app
