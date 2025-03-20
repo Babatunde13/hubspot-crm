@@ -19,8 +19,8 @@ This is an API built with Flask, PostgreSQL, and Hubspot API integration. The AP
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/Babatunde13/insait.git
-   cd insait
+   git clone https://github.com/Babatunde13/hubspot-crm.git
+   cd hubspot-crm
    ```
 2. Build the Docker containers:
     ```
