@@ -3,10 +3,11 @@ from enum import Enum
 from marshmallow import Schema, fields, validates, ValidationError, INCLUDE
 
 class CategoryEnum(Enum):
-    GENERAL_INQUIRY = "GENERAL_INQUIRY"
-    BILLING_ISSUE = "BILLING_ISSUE"
-    FEATURE_REQUEST = "FEATURE_REQUEST"
-    PRODUCT_ISSUE = "PRODUCT_ISSUE"
+    general_inquiry = "general_inquiry"
+    technical_issue = "technical_issue"
+    billing = "billing"
+    service_request = "service_request"
+    meeting = "meeting"
 
 class StageEnum(Enum):
     appointmentscheduled = "appointmentscheduled"
@@ -46,8 +47,7 @@ class DealSchema(Schema):
     Should contain at least
     1. dealname: str
     2. amount: float
-    3: dealstage: str
-    4. tickets: list[TicketSchema]
+    3: dealstage: str, one of "appointmentscheduled", "qualifiedtobuy", "presentationscheduled", "decisionmakerboughtin", "contractsent", "closedwon", "closedlost"
     5. additional fields should be dynamically added
     """
 

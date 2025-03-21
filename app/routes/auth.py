@@ -18,12 +18,16 @@ def register():
 
     data = RegisterSchema().get_user_data(body)
     password = data.pop("password")
+    user_exists = AuthService.user_exists(data["email"])
+    if user_exists:
+        return jsonify({"error": "User already exists"}), 400
+
     contact_response = hubspot_service.create_or_update_contact(data)
     if "error" in contact_response:
         logger.error(contact_response["error"], contact_response)
         return jsonify({"error": "Failed to create account" }), 500
 
-    data["contact_id"] = contact_response["data"]
+    data["contact"] = contact_response["data"]
     response = AuthService.register_user(**data, password=password)
     if "error" in response:
         logger.error(response["error"], response)

@@ -42,24 +42,6 @@ def search():
         "data": contacts
     }), 200
 
-@contacts_bp.route("/pipelines", methods=["GET"])
-@jwt_required()
-def get_tickets():
-    tickets = hubspot_service.get_pipeline_tickets()
-    return jsonify({
-        "message": "Pipeline tickets retrieved successfully",
-        "data": tickets
-    }), 200
-
-@contacts_bp.route("/stages", methods=["GET"])
-@jwt_required()
-def get_stages():
-    stages = hubspot_service.get_deal_stages()
-    return jsonify({
-        "message": "Deal stages retrieved successfully",
-        "data": stages
-    }), 200
-
 @contacts_bp.route("/deals", methods=["POST"])
 @jwt_required()
 @jwt_required_int()
@@ -76,7 +58,6 @@ def create_deal(user_id: int):
 
     contact_id = user.contact_id
     data = DealSchema().load(body)
-    # convert enum to string
     data["dealstage"] = data["dealstage"].value
     response = hubspot_service.create_or_update_deal(contact_id, data["dealname"], data)
     if "error" in response:

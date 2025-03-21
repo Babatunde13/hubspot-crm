@@ -7,19 +7,21 @@ class AuthService:
     @staticmethod
     def generate_token(user_id):
         return create_access_token(identity=str(user_id), expires_delta=timedelta(days=1))
+    
+    @staticmethod
+    def user_exists(email):
+        email = email.strip().lower()
+        return User.query.filter_by(email=email).first() is not None
 
     @staticmethod
-    def register_user(email: str, firstname: str, lastname: str, phone: str, password: str, contact_id: str):
+    def register_user(email: str, firstname: str, lastname: str, phone: str, password: str, contact: dict):
         email = email.strip().lower()
-        if User.query.filter_by(email=email).first():
-            return {"error": "User already exists"}
-
-        user = User(email=email, firstname=firstname, lastname=lastname, phone=phone, contact_id=contact_id)
+        user = User(email=email, firstname=firstname, lastname=lastname, phone=phone, contact_id=contact["id"])
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
 
-        return {"message": "User registered successfully", "data": {} }
+        return {"message": "User registered successfully", "data": { "contact": contact } }
 
     @staticmethod
     def authenticate_user(email, password):

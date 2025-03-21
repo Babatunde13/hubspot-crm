@@ -13,7 +13,7 @@ def create_app():
 
     limiter = Limiter(
         key_func=get_remote_address,
-        default_limits=["1 per minute"]
+        default_limits=["3 per minute"]
     )
 
     app.config.from_object(Config)

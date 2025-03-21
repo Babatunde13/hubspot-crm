@@ -50,51 +50,7 @@ docker-compose up
 ```
 
 ## Endpoints
-1. ### Get Pipelines and Their stages
-    URL: `/api/pipelines`
-    Method: GET
-    Authorization: True
-    Description: Retrieves all the pipelines and list of stages per pipeline. This helps us to know which value can be set for `pipeline` and `hs_pipeline_stage` during ticket creation. We choose an id and set it to the value of `pipeline`, we then choose one of the available stages for the chosen pipeline and set it to `hs_pipeline_stage`
-
-    Response body
-    ```json
-        {
-            "data": {
-                "data": [
-                {
-                    "id": "0",
-                    "label": "Support Pipeline",
-                    "stages": [
-                    {
-                        "display_order": 0,
-                        "id": "1",
-                        "label": "New"
-                    },
-                    {
-                        "display_order": 1,
-                        "id": "2",
-                        "label": "Waiting on contact"
-                    },
-                    {
-                        "display_order": 2,
-                        "id": "3",
-                        "label": "Waiting on us"
-                    },
-                    {
-                        "display_order": 3,
-                        "id": "4",
-                        "label": "Closed"
-                    }
-                    ]
-                }
-                ]
-            },
-            "message": "Pipeline tickets retrieve successfully"
-        }
-    ```
-
-
-2. ### Register
+1. ### Register
     URL: `/api/register`
     Method: POST
     Authorization: False
@@ -116,8 +72,40 @@ docker-compose up
 
     ```json
     {
-        "message": "User registered successfully",
-        "data": {}
+        "data": {
+            "contact": {
+                "createdate": "2025-03-21T15:53:16.679Z",
+                "email": "koikibabatun@gmail.com",
+                "firstname": "Baba",
+                "hs_all_contact_vids": "107824580901",
+                "hs_associated_target_accounts": "0",
+                "hs_currently_enrolled_in_prospecting_agent": "false",
+                "hs_email_domain": "gmail.com",
+                "hs_full_name_or_email": "Baba Tunde",
+                "hs_is_contact": "true",
+                "hs_is_unworked": "true",
+                "hs_lifecyclestage_lead_date": "2025-03-21T15:53:16.679Z",
+                "hs_marketable_status": "false",
+                "hs_marketable_until_renewal": "false",
+                "hs_membership_has_accessed_private_content": "0",
+                "hs_object_id": "107824580901",
+                "hs_object_source": "INTEGRATION",
+                "hs_object_source_id": "9231478",
+                "hs_object_source_label": "INTEGRATION",
+                "hs_pipeline": "contacts-lifecycle-pipeline",
+                "hs_prospecting_agent_actively_enrolled_count": "0",
+                "hs_registered_member": "0",
+                "hs_searchable_calculated_phone_number": "8180854296",
+                "hs_sequences_actively_enrolled_count": "0",
+                "id": "107824580901",
+                "lastmodifieddate": "2025-03-21T15:53:16.679Z",
+                "lastname": "Tunde",
+                "lifecyclestage": "lead",
+                "num_notes": "0",
+                "phone": "08180854296"
+            }
+        },
+        "message": "User registered successfully"
     }
     ```
 
@@ -128,7 +116,7 @@ docker-compose up
     }
     ```
 
-3. ### Login
+2. ### Login
     URL: `/api/login`
     Method: POST
     Authorization: False
@@ -160,7 +148,7 @@ docker-compose up
     }
     ```
 
-4. ### Get Contacts
+3. ### Get Contacts
     URL: `/api/new-crm-objects?limit<int|nullable>&cursor<string|nullable>`
     Method: GET
     Authorization: True
@@ -266,12 +254,13 @@ docker-compose up
     }
     ```
 
-5. ### Create Deal
+4. ### Create Deal
     URL: `/api/deals`
     Method: POST
     Authorization: True
     Description: Creates a new deal for the authenticated user's contact info
-    Request Body
+    Request Body:
+    The dealstage can be one of `appointmentscheduled`, `qualifiedtobuy`, `presentationscheduled`, `decisionmakerboughtin`, `contractsent`, `closedwon`, `closedlost`
     ```json
         {
             "dealname": "Test Deal",
@@ -281,20 +270,95 @@ docker-compose up
         }
     ```
 
-6. ### Create Ticket
+    Response Body:
+    ```json
+    {
+        "data": {
+            "amount": "1000000.0",
+            "amount_in_home_currency": "1000000.0",
+            "createdate": "2025-03-21T15:06:02.943Z",
+            "days_to_close": "0",
+            "dealname": "Another Deal",
+            "dealstage": "appointmentscheduled",
+            "description": "This is a test deal",
+            "hs_closed_amount": "0",
+            "hs_closed_amount_in_home_currency": "0",
+            "hs_closed_deal_close_date": "0",
+            "hs_closed_deal_create_date": "0",
+            "hs_closed_won_count": "0",
+            "hs_days_to_close_raw": "0",
+            "hs_deal_stage_probability": "0.200000000000000011102230246251565404236316680908203125",
+            "hs_deal_stage_probability_shadow": "0.200000000000000011102230246251565404236316680908203125",
+            "hs_forecast_amount": "1000000.0",
+            "hs_is_closed": "false",
+            "hs_is_closed_count": "0",
+            "hs_is_closed_won": "false",
+            "hs_is_open_count": "1",
+            "hs_lastmodifieddate": "2025-03-21T15:06:19.980Z",
+            "hs_object_id": "34915256103",
+            "hs_object_source": "INTEGRATION",
+            "hs_object_source_id": "9231478",
+            "hs_object_source_label": "INTEGRATION",
+            "hs_open_deal_create_date": "1742569562943",
+            "hs_projected_amount": "200000.0000000000111022302462515654042363166809082031250000000",
+            "hs_projected_amount_in_home_currency": "200000.0000000000111022302462515654042363166809082031250000000",
+            "hs_v2_date_entered_current_stage": "2025-03-21T15:06:02.943Z",
+            "hs_v2_time_in_current_stage": "2025-03-21T15:06:02.943Z",
+            "id": "34915256103",
+            "pipeline": "default"
+        },
+        "message": "Deal created successfully"
+    }
+    ```
+
+5. ### Create Ticket
     URL: `api/tickets/<deal_id>`
     Method: POST
     Authorization: True
     Desription:
-    Request Body
+    Request Body:
+    The category can be one of `general_inquiry`, `technical_issue`, `billing`, `service_request`, `meeting`.
     ```json
     {
         "subject": "Test Ticket",
         "description": "This is a test ticket",
-        "category": "PRODUCT_ISSUE",
+        "category": "general_inquiry",
         "pipeline": "0",
         "hs_ticket_priority": "HIGH",
         "hs_pipeline_stage": "1"
+    }
+    ```
+
+    Response Body:
+    ```json
+    {
+        "data": {
+            "category": "general_inquiry",
+            "closed_date": "2025-03-21T15:35:54.252Z",
+            "createdate": "2025-03-21T15:35:54.252Z",
+            "description": "This is a test ticket",
+            "hs_helpdesk_sort_timestamp": "2025-03-21T15:35:54.252Z",
+            "hs_is_visible_in_help_desk": "true",
+            "hs_last_message_from_visitor": "false",
+            "hs_lastmodifieddate": "2025-03-21T15:35:54.252Z",
+            "hs_num_associated_companies": "0",
+            "hs_num_associated_conversations": "0",
+            "hs_num_times_contacted": "0",
+            "hs_object_id": "21675753358",
+            "hs_object_source": "INTEGRATION",
+            "hs_object_source_id": "9231478",
+            "hs_object_source_label": "INTEGRATION",
+            "hs_pipeline": "0",
+            "hs_pipeline_stage": "4",
+            "hs_ticket_id": "21675753358",
+            "hs_ticket_priority": "LOW",
+            "id": "21675753358",
+            "num_notes": "0",
+            "pipeline": "test",
+            "subject": "Test Ticket",
+            "time_to_close": "0"
+        },
+        "message": "Ticket created successfully"
     }
     ```
 
