@@ -8,7 +8,6 @@ This is an API built with Flask, PostgreSQL, and Hubspot API integration. The AP
 - [Environment Variables](#environment-variables)
 - [Running The API](#running-the-api)
 - [Endpoints](#endpoints)
-  - [Get Pipelines and Their stages](#get-pipelines-and-their-stages)
   - [Register](#register)
   - [Login](#login)
   - [Create Deal](#create-deal)
