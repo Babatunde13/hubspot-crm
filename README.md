@@ -11,6 +11,8 @@ This is an API built with Flask, PostgreSQL, and Hubspot API integration. The AP
   - [Get Pipelines and Their stages](#get-pipelines-and-their-stages)
   - [Register](#register)
   - [Login](#login)
+  - [Create Deal](#create-deal)
+  - [Create Ticket](#create-ticket)
   - [Search Contacts](#get-contacts)
 - [Error Codes](#error-codes)
 
@@ -49,10 +51,10 @@ docker-compose up
 
 ## Endpoints
 1. ### Get Pipelines and Their stages
-    URL: `/contacts/pipelines`
+    URL: `/api/pipelines`
     Method: GET
-    Authorization: False
-    Description: Retrieves all the pipelines and list of stages per pipeline. This helps us to know which value can be set for `pipeline` and `hs_pipeline_stage` during User creation. We choose an id and set it to the value of `pipeline`, we then choose one of the available stages for the chosen pipeline and set it to `hs_pipeline_stage`
+    Authorization: True
+    Description: Retrieves all the pipelines and list of stages per pipeline. This helps us to know which value can be set for `pipeline` and `hs_pipeline_stage` during ticket creation. We choose an id and set it to the value of `pipeline`, we then choose one of the available stages for the chosen pipeline and set it to `hs_pipeline_stage`
 
     Response body
     ```json
@@ -93,7 +95,7 @@ docker-compose up
 
 
 2. ### Register
-    URL: `/register`
+    URL: `/api/register`
     Method: POST
     Authorization: False
     Description: Creates a new user and saves/update their info on hubspot.
@@ -106,25 +108,7 @@ docker-compose up
         "firstname": "Babatunde",
         "lastname": "Koiki",
         "password": "passworD@#1",
-        "phone": "08123456789",
-        "deals": [
-            {
-                "dealname": "Test Deal",
-                "dealstage": "appointmentscheduled",
-                "amount": 1000000,
-                "description": "This is a test deal",
-                "tickets": [
-                    {
-                        "subject": "Test Ticket",
-                        "description": "This is a test ticket",
-                        "category": "PRODUCT_ISSUE",
-                        "pipeline": "0",
-                        "hs_ticket_priority": "HIGH",
-                        "hs_pipeline_stage": "1"
-                    }
-                ]
-            }
-        ]
+        "phone": "08123456789"
     }
     ```
 
@@ -145,8 +129,9 @@ docker-compose up
     ```
 
 3. ### Login
-    URL: `/login`
+    URL: `/api/login`
     Method: POST
+    Authorization: False
     Description: Login a user
     Request Body:
 
@@ -176,8 +161,9 @@ docker-compose up
     ```
 
 4. ### Get Contacts
-    URL: `/contacts?limit<int|nullable>&cursor<string|nullable>`
+    URL: `/api/new-crm-objects?limit<int|nullable>&cursor<string|nullable>`
     Method: GET
+    Authorization: True
     Description: Gets paginated list of contacts with their associated 
     Request Query:
         1. limit: Maximum number of contacts that should be returned, defaults to 10.
@@ -277,6 +263,38 @@ docker-compose up
             }
         },
         "message": "Contacts retrieved successfully"
+    }
+    ```
+
+5. ### Create Deal
+    URL: `/api/deals`
+    Method: POST
+    Authorization: True
+    Description: Creates a new deal for the authenticated user's contact info
+    Request Body
+    ```json
+        {
+            "dealname": "Test Deal",
+            "dealstage": "appointmentscheduled",
+            "amount": 1000000,
+            "description": "This is a test deal"
+        }
+    ```
+
+6. ### Create Ticket
+    URL: `api/tickets/<deal_id>`
+    Method: POST
+    Authorization: True
+    Desription:
+    Request Body
+    ```json
+    {
+        "subject": "Test Ticket",
+        "description": "This is a test ticket",
+        "category": "PRODUCT_ISSUE",
+        "pipeline": "0",
+        "hs_ticket_priority": "HIGH",
+        "hs_pipeline_stage": "1"
     }
     ```
 

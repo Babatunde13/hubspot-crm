@@ -86,6 +86,7 @@ class HubspotService:
         if not email:
             raise ValueError("Email is required")
         try:
+            self.refresh_token()
             contact_id = self.search_contact(email)
             if contact_id:
                 self.client.crm.contacts.basic_api.update(contact_id, ContactSimplePublicObjectInput(properties=properties))
@@ -94,13 +95,14 @@ class HubspotService:
                 contact = self.client.crm.contacts.basic_api.create(ContactSimplePublicObjectInputForCreate(properties=properties))
                 contact_id = contact.id
                 self.logger.info(f"Created new contact with email: {email}")
-            return contact_id
+            return { "data": contact_id }
         except Exception as e:
             self.logger.error("Error creating or updating contact", {"error": str(e)})
-            raise e
+            return { "error": "Error creating or updating contact" }
 
     def create_or_update_deal(self, contact_id: str, deal_name: str, properties: dict):
         try:
+            self.refresh_token()
             deal_id = self.search_deal(deal_name)
             if deal_id:
                 self.client.crm.deals.basic_api.update(deal_id, DealSimplePublicObjectInput(properties=properties))
@@ -124,10 +126,25 @@ class HubspotService:
                 deal_id = deal.id
                 self.logger.info(f"Created new deal with name: {deal_name}")
 
-            return deal_id
+            return { "data": deal_id }
         except Exception as e:
             self.logger.error("Error creating or updating deal", {"error": str(e)})
-            raise e
+            return { "error": "Error creating or updating deal" }
+
+    def get_ticket_by_id(self, ticket_id):
+        try:
+            self.refresh_token()
+            ticket_response = self.client.crm.tickets.basic_api.get_by_id(ticket_id)
+            ticket = ticket_response.properties
+            ticket["id"] = ticket_id
+            ticket["description"] = ticket.pop("content")
+            ticket["category"] = ticket.pop("hs_ticket_category")
+            ticket["pipeline"] = ticket.pop("hs_pipeline")
+            self.logger.info(f"Retrieved ticket with ID: {ticket_id}")
+            return { "data": ticket }
+        except Exception as e:
+            self.logger.error("Error retrieving ticket", {"error": str(e)})
+            return { "error": "Error retrieving ticket" }
 
     def create_ticket(self, contact_id, deal_id, properties):
         try:
@@ -151,52 +168,16 @@ class HubspotService:
                     ]
                 }
             ]
+            self.refresh_token()
             ticket = self.client.crm.tickets.basic_api.create(TicketSimplePublicObjectInputForCreate(
                 properties=properties,
                 associations=associations
             ))
             self.logger.info(f"Created new ticket linked to contact ID: {contact_id} and deal ID: {deal_id}")
-            return ticket.id
+            return { "data": ticket }
         except Exception as e:
             self.logger.error("Error creating ticket", {"error": str(e)})
-            raise e
-
-    def handle_user_registration(self, user_data):
-        if "deals" not in user_data:
-            return {"error": "No deals provided for user"}
-        try:
-            contact_properties = {
-                "firstname": user_data["firstname"],
-                "lastname": user_data["lastname"],
-                "email": user_data["email"],
-                "phone": user_data["phone"]
-            }
-            self.refresh_token()
-            contact_id = self.create_or_update_contact(contact_properties)
-
-            if contact_id:
-                for deal_data in user_data["deals"]:
-                    tickets = deal_data.pop("tickets")
-                    deal_id = self.create_or_update_deal(contact_id, deal_data["dealname"], deal_data)
-
-                    if deal_id:
-                        for ticket_data in tickets:
-                            subject = ticket_data.pop("subject")
-                            content = ticket_data.pop("description")
-                            category = ticket_data.pop("category")
-                            pipeline = ticket_data.pop("pipeline")
-                            hs_ticket_priority = ticket_data.pop("hs_ticket_priority")
-                            hs_pipeline_stage = ticket_data.pop("hs_pipeline_stage")
-                            ticket = {
-                                "subject": subject, "content": content, "hs_ticket_category": category,
-                                "hs_pipeline": pipeline, "hs_ticket_priority": hs_ticket_priority,
-                                "hs_pipeline_stage": hs_pipeline_stage, **ticket_data
-                            }
-                            self.create_ticket(contact_id, deal_id, ticket)
-        except Exception as e:
-            return {"error": str(e)}
-
-        return { "data": {} }
+            return { "error": "Error creating ticket" }
 
     def get_contacts(self, limit, after):
         try:
@@ -272,4 +253,18 @@ class HubspotService:
             self.logger.error("Error retrieving pipeline tickets", {"error": str(e)})
             return {"error": "Error retrieving pipeline tickets"}
     
+    def get_deal_stages(self):
+        pipelines = self.client.crm.pipelines.pipelines_api.get_all("deals")
+        stages = []
+        for pipeline in pipelines.results:
+            for stage in pipeline.stages:
+                print(stage)
+                stages.append({
+                    "id": stage.id,
+                    "label": stage.label,
+                    "display_order": stage.display_order
+                })
+        return stages
+    
+
 hubspot_service = HubspotService()

@@ -9,12 +9,12 @@ class AuthService:
         return create_access_token(identity=str(user_id), expires_delta=timedelta(days=1))
 
     @staticmethod
-    def register_user(email: str, firstname: str, lastname: str, phone: str, password: str):
+    def register_user(email: str, firstname: str, lastname: str, phone: str, password: str, contact_id: str):
         email = email.strip().lower()
         if User.query.filter_by(email=email).first():
             return {"error": "User already exists"}
 
-        user = User(email=email, firstname=firstname, lastname=lastname, phone=phone)
+        user = User(email=email, firstname=firstname, lastname=lastname, phone=phone, contact_id=contact_id)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()

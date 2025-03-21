@@ -5,6 +5,11 @@ class UserService:
     @staticmethod
     def get_paginated_users(page, per_page):
         return User.query.paginate(page, per_page, False)
+
+    @staticmethod
+    def get_user_by_id(user_id):
+        user = User.query.get(user_id)
+        return user
     
     @staticmethod
     def delete_user_by_email(email):

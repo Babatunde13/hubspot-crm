@@ -10,22 +10,24 @@ logger = Logger('AuthRouter')
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
-    data = request.get_json()
-    errors = RegisterSchema().validate(data)
+    body = request.get_json()
+    errors = RegisterSchema().validate(body)
     if errors:
         logger.error("Validation error", errors)
         return jsonify(errors), 400
 
-    response = AuthService.register_user(**RegisterSchema().get_user_data(data))
+    data = RegisterSchema().get_user_data(body)
+    password = data.pop("password")
+    contact_response = hubspot_service.create_or_update_contact(data)
+    if "error" in contact_response:
+        logger.error(contact_response["error"], contact_response)
+        return jsonify({"error": "Failed to create account" }), 500
+
+    data["contact_id"] = contact_response["data"]
+    response = AuthService.register_user(**data, password=password)
     if "error" in response:
         logger.error(response["error"], response)
         return jsonify(response), 400
-
-    contact_response = hubspot_service.handle_user_registration(data)
-    if "error" in contact_response:
-        logger.error(contact_response["error"], contact_response)
-        UserService.delete_user_by_email(data["email"])
-        return jsonify({"error": "Failed to create account" }), 500
 
     return jsonify(response), 201
 

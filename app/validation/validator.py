@@ -54,7 +54,6 @@ class DealSchema(Schema):
     dealname = fields.Str(required=True)
     amount = fields.Float(required=True)
     dealstage = fields.Enum(required=True, enum=StageEnum)
-    tickets = fields.List(fields.Nested(TicketSchema), required=True)
 
     class Meta:
         unknown = INCLUDE
@@ -66,7 +65,6 @@ class RegisterSchema(Schema):
     phone = fields.Str(required=True)
     firstname = fields.Str(required=True)
     lastname = fields.Str(required=True)
-    deals = fields.List(fields.Nested(DealSchema), required=True)
 
     @validates("firstname")
     def validate_firstname(self, value):

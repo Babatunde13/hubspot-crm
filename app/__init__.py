@@ -23,8 +23,8 @@ def create_app():
     migrate.init_app(app, db)
     limiter.init_app(app)
 
-    app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(contacts_bp, url_prefix="/contacts")
+    app.register_blueprint(auth_bp, url_prefix="/api")
+    app.register_blueprint(contacts_bp, url_prefix="/api")
 
     @app.errorhandler(404)
     def not_found(error):
